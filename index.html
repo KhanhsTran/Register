@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng Ký Hệ Thống - Khánh Trần NK05</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 1;
+            transform: translateY(-50%);
+        }
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e0e0e0;
+            color: #777;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        .step.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .step.completed {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+            background-color: white;
+            cursor: pointer;
+        }
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        .age-display {
+            display: inline-block;
+            margin-left: 10px;
+            padding: 12px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        .invalid-age {
+            color: red;
+            font-weight: bold;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .prev-btn {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        .prev-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .next-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        .next-btn.disabled {
+            background-color: #cccccc;
+        }
+        .next-btn:hover {
+            background-color: #2980b9;
+        }
+        .submit-btn {
+            background-color: #2ecc71;
+            color: white;
+            width: 100%;
+        }
+        .submit-btn:hover {
+            background-color: #27ae60;
+        }
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .success-message {
+            color: #2ecc71;
+            font-weight: bold;
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+        .success-message div {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .back-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ĐĂNG KÝ HỆ THỐNG</h1>
+
+        <div class="step-indicator">
+            <div class="step active" id="step1">1</div>
+            <div class="step" id="step2">2</div>
+            <div class="step" id="step3">3</div>
+            <div class="step" id="step4">4</div>
+        </div>
+
+        <form id="multiStepForm">
+            <div class="form-step active" id="step-1">
+                <div class="form-group">
+                    <label for="name">Họ và tên:</label>
+                    <input type="text" id="name" required placeholder="Nhập họ và tên của bạn" />
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="prev-btn" disabled>Trước</button>
+                    <button type="button" class="next-btn" id="next1">Tiếp theo</button>
+                </div>
+            </div>
+
+            <div class="form-step" id="step-2">
+                <div class="form-group">
+                    <label for="birthYear">Năm sinh:</label>
+                    <div style="display: flex; align-items: center;">
+                        <select id="birthYear" required style="flex: 1;">
+                            <option value="" disabled selected>Chọn năm sinh</option>
+                        </select>
+                        <span id="calculatedAge" class="age-display">Tuổi: ?</span>
+                    </div>
+                    <div id="ageError" class="invalid-age" style="display: none;">
+                        Bạn phải đủ 18 tuổi mới có thể đăng ký
+                    </div>
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="prev-btn" id="prev2">Trước</button>
+                    <button type="button" class="next-btn disabled" id="next2">Tiếp theo</button>
+                </div>
+            </div>
+
+            <div class="form-step" id="step-3">
+                <div class="form-group">
+                    <label for="phone">Số điện thoại:</label>
+                    <input type="tel" id="phone" required placeholder="Nhập số điện thoại của bạn" />
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="prev-btn" id="prev3">Trước</button>
+                    <button type="button" class="next-btn" id="next3">Tiếp theo</button>
+                </div>
+            </div>
+
+            <div class="form-step" id="step-4">
+                <div class="form-group">
+                    <label for="nationality">Quốc tịch:</label>
+                    <select id="nationality" required>
+                        <option value="" disabled selected>Chọn quốc tịch</option>
+                    </select>
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="prev-btn" id="prev4">Trước</button>
+                    <button type="submit" class="submit-btn">Hoàn tất</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="result" id="result" style="display: none;">
+            <h3>Thông tin đã nhập:</h3>
+            <p id="display-name"></p>
+            <p id="display-age"></p>
+            <p id="display-phone"></p>
+            <p id="display-nationality"></p>
+            <div id="successMessage" class="success-message">
+                <div>Bạn đã đăng ký thành công</div>
+                <button onclick="window.location.reload()" class="back-btn">Quay lại</button>
+            </div>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #666;">
+        Nguồn: Khánh Trần NK05
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        document.getElementById('next2').disabled = true;
+
+        function goToStep(step) {
+            document.querySelector(`#step-${currentStep}`).classList.remove('active');
+            document.querySelector(`#step${currentStep}`).classList.remove('active');
+
+            document.querySelector(`#step-${step}`).classList.add('active');
+            document.querySelector(`#step${step}`).classList.add('active');
+
+            if (step === 1) {
+                document.querySelector(`#prev${step}`).disabled = true;
+            }
+
+            currentStep = step;
+
+            for (let i = 1; i < step; i++) {
+                document.querySelector(`#step${i}`).classList.add('completed');
+            }
+        }
+
+        document.getElementById('next1').addEventListener('click', function () {
+            const nameInput = document.getElementById('name');
+            if (nameInput.checkValidity()) {
+                goToStep(2);
+            } else {
+                nameInput.reportValidity();
+            }
+        });
+
+        const birthYearSelect = document.getElementById('birthYear');
+        const currentYear = new Date().getFullYear();
+        for (let year = currentYear; year >= 1900; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            birthYearSelect.appendChild(option);
+        }
+
+        birthYearSelect.addEventListener('change', function () {
+            const next2Btn = document.getElementById('next2');
+            if (this.value) {
+                const age = currentYear - parseInt(this.value);
+                document.getElementById('calculatedAge').textContent = `Tuổi: ${age}`;
+                if (age < 18) {
+                    this.setCustomValidity('Bạn phải đủ 18 tuổi mới có thể đăng ký');
+                    next2Btn.disabled = true;
+                    next2Btn.textContent = 'Bạn chưa đủ 18 tuổi';
+                    next2Btn.classList.add('disabled');
+                } else {
+                    this.setCustomValidity('');
+                    next2Btn.disabled = false;
+                    next2Btn.textContent = 'Tiếp theo';
+                    next2Btn.classList.remove('disabled');
+                }
+            } else {
+                document.getElementById('calculatedAge').textContent = 'Tuổi: ?';
+                this.setCustomValidity('');
+                next2Btn.disabled = false;
+                next2Btn.textContent = 'Tiếp theo';
+                next2Btn.classList.remove('disabled');
+            }
+        });
+
+        document.getElementById('next2').addEventListener('click', function () {
+            const birthYearInput = document.getElementById('birthYear');
+            const age = currentYear - parseInt(birthYearInput.value);
+
+            if (age < 18) {
+                alert('Bạn phải đủ 18 tuổi mới có thể tiếp tục');
+                return;
+            }
+
+            if (birthYearInput.checkValidity()) {
+                goToStep(3);
+            } else {
+                birthYearInput.reportValidity();
+            }
+        });
+
+        document.getElementById('next3').addEventListener('click', function () {
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput.checkValidity()) {
+                goToStep(4);
+            } else {
+                phoneInput.reportValidity();
+            }
+        });
+
+        document.getElementById('prev2').addEventListener('click', () => goToStep(1));
+        document.getElementById('prev3').addEventListener('click', () => goToStep(2));
+        document.getElementById('prev4').addEventListener('click', () => goToStep(3));
+
+        document.getElementById('multiStepForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                birthYear: document.getElementById('birthYear').value,
+                phone: document.getElementById('phone').value,
+                nationality: document.getElementById('nationality').value,
+            };
+
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('display-name').textContent = `Tên: ${formData.name}`;
+            const age = currentYear - parseInt(formData.birthYear);
+            document.getElementById('display-age').textContent = `Năm sinh: ${formData.birthYear} (Tuổi: ${age})`;
+            document.getElementById('display-phone').textContent = `Số điện thoại: ${formData.phone}`;
+            document.getElementById('display-nationality').textContent = `Quốc tịch: ${formData.nationality}`;
+
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+
+            for (let i = 1; i <= totalSteps; i++) {
+                document.querySelector(`#step${i}`).classList.add('completed');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const nationalitySelect = document.getElementById('nationality');
+            const countries = [
+                "Việt Nam", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola",
+                "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas",
+                "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize",
+                "Bolivia", "Brazil", "Brunei", "Bulgaria", "Cambodia", "Cameroon",
+                "Canada", "Chile", "China", "Colombia", "Costa Rica", "Croatia",
+                "Cuba", "Cyprus", "Czech Republic", "Denmark", "Dominican Republic",
+                "Ecuador", "Egypt", "Estonia", "Finland", "France", "Georgia",
+                "Germany", "Greece", "Hungary", "Iceland", "India", "Indonesia",
+                "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan",
+                "Jordan", "Kazakhstan", "Kenya", "Kuwait", "Laos", "Latvia",
+                "Lebanon", "Liberia", "Libya", "Lithuania", "Luxembourg", "Malaysia",
+                "Maldives", "Malta", "Mexico", "Morocco", "Myanmar", "Nepal",
+                "Netherlands", "New Zealand", "Nigeria", "Norway", "Oman", "Pakistan",
+                "Panama", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+                "Qatar", "Romania", "Russia", "Saudi Arabia", "Senegal", "Singapore",
+                "Slovakia", "South Africa", "South Korea", "Spain", "Sri Lanka",
+                "Sweden", "Switzerland", "Syria", "Thailand", "Tunisia", "Turkey",
+                "Ukraine", "UK", "USA", "Uruguay", "Uzbekistan", "Venezuela"
+            ];
+
+            countries.forEach((country) => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                nationalitySelect.appendChild(option);
+            });
+
+            nationalitySelect.value = "Việt Nam";
+        });
+    </script>
+</body>
+</html>
